@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Best Friend Chat - Profile Discussion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0f1f 100%);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 400px;
+            height: 700px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Header */
+        .header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .header-title {
+            font-size: 16px;
+            color: #888;
+            margin-bottom: 5px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.3s forwards;
+        }
+        
+        .header-subtitle {
+            font-size: 24px;
+            font-weight: 300;
+            background: linear-gradient(135deg, #667eea 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 0.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Profile Cards Carousel */
+        .profiles-section {
+            padding: 20px;
+            opacity: 0;
+            animation: slideUp 0.6s ease-out 0.8s forwards;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .profiles-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+        
+        .profiles-carousel {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .profiles-carousel::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .profile-card {
+            min-width: 120px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInScale 0.5s ease-out forwards;
+        }
+        
+        .profile-card:nth-child(1) { animation-delay: 1s; }
+        .profile-card:nth-child(2) { animation-delay: 1.2s; }
+        .profile-card:nth-child(3) { animation-delay: 1.4s; }
+        
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        .profile-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .profile-card.active {
+            background: rgba(102, 126, 234, 0.1);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .profile-emoji {
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .profile-name {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .profile-match {
+            font-size: 12px;
+            color: #667eea;
+        }
+        
+        /* Chat Area */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+        }
+        
+        .chat-messages::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: messageSlide 0.4s ease-out forwards;
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.ai {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea, #ec4899);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .message-content {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 20px;
+            line-height: 1.4;
+            font-size: 14px;
+        }
+        
+        .message.ai .message-content {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-top-left-radius: 4px;
+        }
+        
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .message.user .message-content {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-top-right-radius: 4px;
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            opacity: 0;
+        }
+        
+        .typing-indicator.active {
+            opacity: 1;
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: typingDot 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typingDot {
+            0%, 60%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            30% {
+                opacity: 1;
+                transform: scale(1.2);
+            }
+        }
+        
+        /* Input Area */
+        .chat-input-container {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            opacity: 0;
+            animation: slideUp 0.5s ease-out 1.8s forwards;
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .chat-input {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        .chat-input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .send-button {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea, #ec4899);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .send-button:hover {
+            transform: scale(1.1);
+        }
+        
+        .send-button:active {
+            transform: scale(0.95);
+        }
+        
+        /* Quick Actions */
+        .quick-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-action {
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            animation: fadeInScale 0.4s ease-out forwards;
+        }
+        
+        .quick-action:nth-child(1) { animation-delay: 2s; }
+        .quick-action:nth-child(2) { animation-delay: 2.1s; }
+        .quick-action:nth-child(3) { animation-delay: 2.2s; }
+        
+        .quick-action:hover {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: rgba(102, 126, 234, 0.5);
+        }
+        
+        /* Insight Cards */
+        .insight-card {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 15px;
+            padding: 12px;
+            margin: 10px 0;
+        }
+        
+        .insight-title {
+            font-size: 12px;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .insight-text {
+            font-size: 13px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-title">YOUR AI BEST FRIEND</div>
+            <div class="header-subtitle">Let's Talk About Your Matches</div>
+        </div>
+        
+        <!-- Profile Cards -->
+        <div class="profiles-section">
+            <div class="profiles-label">YOUR TOP RESONANCES</div>
+            <div class="profiles-carousel">
+                <div class="profile-card active" onclick="selectProfile(0)">
+                    <div class="profile-emoji">🎨</div>
+                    <div class="profile-name">Luna</div>
+                    <div class="profile-match">87% match</div>
+                </div>
+                <div class="profile-card" onclick="selectProfile(1)">
+                    <div class="profile-emoji">🎸</div>
+                    <div class="profile-name">Marcus</div>
+                    <div class="profile-match">82% match</div>
+                </div>
+                <div class="profile-card" onclick="selectProfile(2)">
+                    <div class="profile-emoji">📚</div>
+                    <div class="profile-name">Zara</div>
+                    <div class="profile-match">79% match</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Chat Container -->
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Messages will be added here -->
+            </div>
+            
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="ai-avatar">🤖</div>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Input Area -->
+        <div class="chat-input-container">
+            <div class="chat-input-wrapper">
+                <input 
+                    type="text" 
+                    class="chat-input" 
+                    placeholder="Ask me anything about your matches..."
+                    id="chatInput"
+                >
+                <button class="send-button" onclick="sendMessage()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="quick-actions">
+                <div class="quick-action" onclick="quickAction('compare')">Compare them</div>
+                <div class="quick-action" onclick="quickAction('vibe')">Tell me their vibe</div>
+                <div class="quick-action" onclick="quickAction('advice')">Who should I meet first?</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const chatInput = document.getElementById('chatInput');
+        
+        let messageDelay = 0;
+        
+        // Initial messages
+        const initialMessages = [
+            {
+                type: 'ai',
+                text: "OMG! You got some amazing matches! 🎉 Luna with 87% is incredible - that's like finding a unicorn!",
+                delay: 2000
+            },
+            {
+                type: 'ai',
+                text: "I've been analyzing their conversations with other agents, and wow... there's some real magic here. Want me to spill the tea? ☕",
+                delay: 3500
+            }
+        ];
+        
+        // Profile responses
+        const profileResponses = {
+            0: [ // Luna
+                "Okay, so Luna is FASCINATING! She's got this calm creative energy that's literally magnetic.",
+                "Picture this: She makes pottery while pondering philosophy. Last Sunday she spent 3 hours at her wheel creating 'abstract art' (her words for when bowls go wrong 😄)",
+                "But here's what your agents discovered - you both pause in conversations the EXACT same way. It's like your thinking rhythms are synchronized!"
+            ],
+            1: [ // Marcus
+                "Marcus is pure energy! 🚀 This guy climbs rocks at 7am after jazz nights that end at 3am. How?!",
+                "He's working on a graphic novel about time travelers who can only travel forward one second per second (I know, right? Genius or madness?)",
+                "Your agents had the most animated conversation - they were practically finishing each other's sentences about creative projects!"
+            ],
+            2: [ // Zara
+                "Zara is a force of nature! She's saving the world one community garden at a time while writing afrofuturist stories 🌍",
+                "She hosts these dinner parties where everyone ends up sharing deep stories over Ethiopian food. Very 'chosen family' vibes.",
+                "What's wild is your agents bonded over how you both see humor as a way to tackle serious topics. That's rare!"
+            ]
+        };
+        
+        // Add message function
+        function addMessage(type, text, delay = 0) {
+            setTimeout(() => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.animationDelay = '0s';
+                
+                if (type === 'ai') {
+                    messageDiv.innerHTML = `
+                        <div class="ai-avatar">🤖</div>
+                        <div class="message-content">${text}</div>
+                    `;
+                } else {
+                    messageDiv.innerHTML = `
+                        <div class="message-content">${text}</div>
+                    `;
+                }
+                
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, delay);
+        }
+        
+        // Show typing indicator
+        function showTyping(duration) {
+            setTimeout(() => {
+                typingIndicator.classList.add('active');
+                setTimeout(() => {
+                    typingIndicator.classList.remove('active');
+                }, duration);
+            }, 100);
+        }
+        
+        // Send initial messages
+        initialMessages.forEach(msg => {
+            showTyping(msg.delay - 500);
+            addMessage(msg.type, msg.text, msg.delay);
+        });
+        
+        // Select profile
+        let currentProfile = 0;
+        function selectProfile(index) {
+            currentProfile = index;
+            document.querySelectorAll('.profile-card').forEach((card, i) => {
+                card.classList.toggle('active', i === index);
+            });
+            
+            // Send profile-specific messages
+            showTyping(1500);
+            profileResponses[index].forEach((text, i) => {
+                addMessage('ai', text, 2000 + (i * 2000));
+                if (i < profileResponses[index].length - 1) {
+                    showTyping(3500 + (i * 2000));
+                }
+            });
+        }
+        
+        // Quick actions
+        function quickAction(action) {
+            const actions = {
+                compare: "Want me to compare all three? I love doing compatibility breakdowns!",
+                vibe: "Let me paint you a picture of each person's energy...",
+                advice: "Ooh, strategic dating advice? I'm SO here for this!"
+            };
+            
+            addMessage('user', document.querySelector(`.quick-action:nth-child(${action === 'compare' ? 1 : action === 'vibe' ? 2 : 3})`).textContent, 0);
+            showTyping(1500);
+            addMessage('ai', actions[action], 1000);
+            
+            // Add specific insight
+            setTimeout(() => {
+                const insightDiv = document.createElement('div');
+                insightDiv.className = 'message ai';
+                insightDiv.innerHTML = `
+                    <div class="ai-avatar">🤖</div>
+                    <div class="message-content">
+                        <div class="insight-card">
+                            <div class="insight-title">💡 MY TAKE</div>
+                            <div class="insight-text">
+                                ${action === 'compare' ? 
+                                    "Luna brings depth and creativity, Marcus brings adventure and energy, Zara brings purpose and warmth. You literally can't go wrong!" :
+                                action === 'vibe' ?
+                                    "Luna = cozy bookstore energy, Marcus = late night rooftop party, Zara = Sunday farmers market with friends" :
+                                    "Start with whoever made you smile when reading about them. That gut feeling? That's your agents' chemistry talking!"
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                chatMessages.appendChild(insightDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 2500);
+        }
+        
+        // Send message
+        function sendMessage() {
+            const text = chatInput.value.trim();
+            if (text) {
+                addMessage('user', text, 0);
+                chatInput.value = '';
+                
+                // Simulate AI response
+                showTyping(2000);
+                setTimeout(() => {
+                    const responses = [
+                        "That's such a great question! Let me think about this...",
+                        "Ooh, I have thoughts on this! So here's what I noticed...",
+                        "Yes! I was hoping you'd ask about that!"
+                    ];
+                    addMessage('ai', responses[Math.floor(Math.random() * responses.length)], 2000);
+                }, 100);
+            }
+        }
+        
+        // Enter key to send
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

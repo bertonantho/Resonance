@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Match Reveal Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 400px;
+            height: 700px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 30px;
+        }
+        
+        /* Background effects */
+        .glow-orb {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(102, 126, 234, 0.3), transparent);
+            border-radius: 50%;
+            filter: blur(60px);
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .glow-orb:nth-child(1) {
+            top: -150px;
+            left: -150px;
+            animation-delay: 0s;
+        }
+        
+        .glow-orb:nth-child(2) {
+            bottom: -150px;
+            right: -150px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.3), transparent);
+            animation-delay: 3s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translate(0, 0) scale(1);
+            }
+            50% {
+                transform: translate(30px, -30px) scale(1.1);
+            }
+        }
+        
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeInDown 0.8s ease-out 0.3s forwards;
+            z-index: 10;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .match-title {
+            font-size: 20px;
+            color: #888;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+        }
+        
+        .resonance-text {
+            font-size: 36px;
+            font-weight: 200;
+            background: linear-gradient(135deg, #667eea 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Connection Animation */
+        .connection-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px 0;
+        }
+        
+        .soul-orb {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        
+        .soul-orb::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 50%;
+            padding: 2px;
+            background: linear-gradient(45deg, transparent, currentColor, transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate 3s linear infinite;
+        }
+        
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .soul-orb.user {
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #667eea;
+            opacity: 0;
+            animation: slideFromLeft 1s ease-out 0.8s forwards;
+        }
+        
+        .soul-orb.match {
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #ec4899, #f5576c);
+            color: #ec4899;
+            opacity: 0;
+            animation: slideFromRight 1s ease-out 1s forwards;
+        }
+        
+        @keyframes slideFromLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px) translateY(-50%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(-50%);
+            }
+        }
+        
+        @keyframes slideFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px) translateY(-50%);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0) translateY(-50%);
+            }
+        }
+        
+        .soul-emoji {
+            font-size: 40px;
+            z-index: 2;
+        }
+        
+        /* Energy Connection Lines */
+        .energy-bridge {
+            position: absolute;
+            top: 50%;
+            left: 80px;
+            right: 80px;
+            height: 2px;
+            transform: translateY(-50%);
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 2s forwards;
+        }
+        
+        .energy-flow {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, #667eea, #ec4899, transparent);
+            animation: flow 2s ease-in-out infinite 2.5s;
+        }
+        
+        @keyframes flow {
+            to {
+                left: 100%;
+            }
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        /* Central Resonance Symbol */
+        .resonance-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            opacity: 0;
+            animation: scaleIn 0.6s ease-out 2.5s forwards;
+        }
+        
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        .resonance-symbol {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,0.9), rgba(255,255,255,0.1));
+            box-shadow: 0 0 40px rgba(255,255,255,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            animation: breathe 2s ease-in-out infinite 3s;
+        }
+        
+        @keyframes breathe {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 40px rgba(255,255,255,0.5);
+            }
+            50% {
+                transform: scale(1.1);
+                box-shadow: 0 0 60px rgba(255,255,255,0.8);
+            }
+        }
+        
+        /* Stats Display */
+        .stats-container {
+            width: 100%;
+            margin-top: 40px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 3s forwards;
+        }
+        
+        .chemistry-meter {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .chemistry-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+        
+        .chemistry-score {
+            font-size: 64px;
+            font-weight: 100;
+            background: linear-gradient(135deg, #667eea 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1;
+            animation: countUp 2s ease-out 3.5s forwards;
+        }
+        
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* Compatibility Insights */
+        .insights {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .insight-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        
+        .insight-item:nth-child(1) { animation-delay: 3.5s; }
+        .insight-item:nth-child(2) { animation-delay: 3.7s; }
+        .insight-item:nth-child(3) { animation-delay: 3.9s; }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .insight-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: rgba(102, 126, 234, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 14px;
+        }
+        
+        .insight-text {
+            font-size: 14px;
+            color: #ccc;
+            flex: 1;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Action Button */
+        .action-button {
+            margin-top: 30px;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea, #ec4899);
+            border: none;
+            border-radius: 30px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out 4.5s forwards;
+            transition: transform 0.3s ease;
+        }
+        
+        .action-button:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glow-orb"></div>
+        <div class="glow-orb"></div>
+        
+        <div class="header">
+            <div class="match-title">YOUR AGENTS DISCOVERED</div>
+            <div class="resonance-text">Deep Resonance</div>
+        </div>
+        
+        <div class="connection-container">
+            <div class="soul-orb user">
+                <span class="soul-emoji">🎭</span>
+            </div>
+            
+            <div class="energy-bridge">
+                <div class="energy-flow"></div>
+            </div>
+            
+            <div class="resonance-center">
+                <div class="resonance-symbol">✨</div>
+            </div>
+            
+            <div class="soul-orb match">
+                <span class="soul-emoji">🎨</span>
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="chemistry-meter">
+                <div class="chemistry-label">Chemistry Score</div>
+                <div class="chemistry-score">87%</div>
+            </div>
+            
+            <div class="insights">
+                <div class="insight-item">
+                    <div class="insight-icon">💫</div>
+                    <div class="insight-text">Both seek depth over surface</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">🎯</div>
+                    <div class="insight-text">Complementary energy patterns</div>
+                </div>
+                <div class="insight-item">
+                    <div class="insight-icon">💬</div>
+                    <div class="insight-text">Natural conversation flow detected</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="action-button">Create Introduction</button>
+    </div>
+
+    <script>
+        // Animate chemistry score counting
+        setTimeout(() => {
+            let score = 0;
+            const targetScore = 87;
+            const scoreElement = document.querySelector('.chemistry-score');
+            const interval = setInterval(() => {
+                score += 2;
+                if (score >= targetScore) {
+                    score = targetScore;
+                    clearInterval(interval);
+                }
+                scoreElement.textContent = score + '%';
+            }, 30);
+        }, 3500);
+
+        // Add floating particles
+        function createParticle() {
+            const particle = document.createElement('div');
+            particle.style.position = 'absolute';
+            particle.style.width = '2px';
+            particle.style.height = '2px';
+            particle.style.background = '#667eea';
+            particle.style.borderRadius = '50%';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.bottom = '0';
+            particle.style.opacity = '0';
+            particle.style.animation = 'floatUp 4s ease-out';
+            
+            const container = document.querySelector('.container');
+            container.appendChild(particle);
+            
+            setTimeout(() => particle.remove(), 4000);
+        }
+
+        // Create particles periodically
+        setInterval(createParticle, 300);
+
+        // Add floating animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes floatUp {
+                0% {
+                    opacity: 0;
+                    transform: translateY(0) scale(0);
+                }
+                20% {
+                    opacity: 0.8;
+                    transform: translateY(-100px) scale(1);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translateY(-400px) scale(0.5);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

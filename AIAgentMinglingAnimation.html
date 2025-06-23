@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Agents Mingling</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 400px;
+            height: 700px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 30px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .title {
+            font-size: 36px;
+            font-weight: 200;
+            letter-spacing: -1px;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .mixing-chamber {
+            position: absolute;
+            top: 100px;
+            left: 20px;
+            right: 20px;
+            height: 400px;
+            background: radial-gradient(ellipse at center, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .agent {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+        }
+        
+        .agent.user {
+            width: 16px;
+            height: 16px;
+            background: #667eea;
+            box-shadow: 0 0 20px #667eea, 0 0 40px #667eea;
+            z-index: 10;
+        }
+        
+        .agent.other {
+            background: #444;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .agent.connecting {
+            background: #f39c12;
+            animation: pulse 1s infinite;
+        }
+        
+        .agent.matched {
+            background: #00ff88;
+            box-shadow: 0 0 20px #00ff88;
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            50% {
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+        
+        .connection-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #667eea, transparent);
+            transform-origin: left center;
+            animation: fadeConnection 2s ease-in-out;
+            pointer-events: none;
+        }
+        
+        @keyframes fadeConnection {
+            0% {
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+        
+        .stats {
+            position: absolute;
+            bottom: 100px;
+            left: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 20px;
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            opacity: 0;
+            animation: fadeInUp 0.5s ease-out forwards;
+        }
+        
+        .stat-row:nth-child(1) { animation-delay: 0.5s; }
+        .stat-row:nth-child(2) { animation-delay: 0.7s; }
+        .stat-row:nth-child(3) { animation-delay: 0.9s; }
+        
+        .stat-label {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: #667eea;
+            font-size: 16px;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .match-notification {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 20px 30px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 20;
+            animation: matchPop 0.5s ease-out 3s forwards;
+        }
+        
+        @keyframes matchPop {
+            to {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        .match-text {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .match-score {
+            font-size: 36px;
+            font-weight: 100;
+        }
+        
+        .ripple {
+            position: absolute;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            opacity: 0;
+            animation: rippleEffect 2s ease-out;
+            pointer-events: none;
+        }
+        
+        @keyframes rippleEffect {
+            from {
+                width: 0;
+                height: 0;
+                opacity: 1;
+            }
+            to {
+                width: 100px;
+                height: 100px;
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="title">Resonance</div>
+            <div class="subtitle">Your agent is mingling...</div>
+        </div>
+        
+        <div class="mixing-chamber" id="chamber">
+            <!-- Agents will be dynamically added here -->
+        </div>
+        
+        <div class="stats">
+            <div class="stat-row">
+                <span class="stat-label">Agents Met</span>
+                <span class="stat-value" id="agentsMet">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Conversations</span>
+                <span class="stat-value" id="conversations">0</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Resonance Found</span>
+                <span class="stat-value" id="resonanceFound">0</span>
+            </div>
+        </div>
+        
+        <div class="match-notification">
+            <div class="match-text">Deep Resonance Found!</div>
+            <div class="match-score">87%</div>
+        </div>
+    </div>
+
+    <script>
+        const chamber = document.getElementById('chamber');
+        const chamberRect = chamber.getBoundingClientRect();
+        
+        // Create user agent
+        const userAgent = document.createElement('div');
+        userAgent.className = 'agent user';
+        userAgent.style.left = '50%';
+        userAgent.style.top = '50%';
+        userAgent.style.transform = 'translate(-50%, -50%)';
+        chamber.appendChild(userAgent);
+        
+        // Create other agents
+        const agents = [];
+        for (let i = 0; i < 20; i++) {
+            const agent = document.createElement('div');
+            agent.className = 'agent other';
+            agent.style.left = Math.random() * 90 + 5 + '%';
+            agent.style.top = Math.random() * 90 + 5 + '%';
+            chamber.appendChild(agent);
+            
+            agents.push({
+                element: agent,
+                x: parseFloat(agent.style.left),
+                y: parseFloat(agent.style.top),
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5
+            });
+        }
+        
+        // Animate agents
+        function animateAgents() {
+            agents.forEach(agent => {
+                // Update position
+                agent.x += agent.vx;
+                agent.y += agent.vy;
+                
+                // Bounce off walls
+                if (agent.x <= 5 || agent.x >= 95) agent.vx *= -1;
+                if (agent.y <= 5 || agent.y >= 95) agent.vy *= -1;
+                
+                // Apply position
+                agent.element.style.left = agent.x + '%';
+                agent.element.style.top = agent.y + '%';
+                
+                // Occasionally create connections
+                if (Math.random() > 0.995) {
+                    createConnection(userAgent, agent.element);
+                    agent.element.classList.add('connecting');
+                    setTimeout(() => {
+                        agent.element.classList.remove('connecting');
+                    }, 2000);
+                }
+            });
+            
+            requestAnimationFrame(animateAgents);
+        }
+        
+        function createConnection(agent1, agent2) {
+            const line = document.createElement('div');
+            line.className = 'connection-line';
+            
+            const rect1 = agent1.getBoundingClientRect();
+            const rect2 = agent2.getBoundingClientRect();
+            const containerRect = chamber.getBoundingClientRect();
+            
+            const x1 = rect1.left - containerRect.left + rect1.width / 2;
+            const y1 = rect1.top - containerRect.top + rect1.height / 2;
+            const x2 = rect2.left - containerRect.left + rect2.width / 2;
+            const y2 = rect2.top - containerRect.top + rect2.height / 2;
+            
+            const distance = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+            const angle = Math.atan2(y2 - y1, x2 - x1) * 180 / Math.PI;
+            
+            line.style.width = distance + 'px';
+            line.style.left = x1 + 'px';
+            line.style.top = y1 + 'px';
+            line.style.transform = `rotate(${angle}deg)`;
+            
+            chamber.appendChild(line);
+            
+            // Create ripple effect
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = x1 - 50 + 'px';
+            ripple.style.top = y1 - 50 + 'px';
+            chamber.appendChild(ripple);
+            
+            setTimeout(() => {
+                line.remove();
+                ripple.remove();
+            }, 2000);
+        }
+        
+        // Update stats
+        let met = 0;
+        let convos = 0;
+        let resonance = 0;
+        
+        setInterval(() => {
+            met += Math.floor(Math.random() * 5) + 1;
+            convos += Math.floor(Math.random() * 15) + 5;
+            
+            document.getElementById('agentsMet').textContent = met;
+            document.getElementById('conversations').textContent = convos;
+            
+            if (convos > 100 && resonance === 0) {
+                resonance = 1;
+                document.getElementById('resonanceFound').textContent = resonance;
+                
+                // Mark one agent as matched
+                const randomAgent = agents[Math.floor(Math.random() * agents.length)];
+                randomAgent.element.classList.add('matched');
+            }
+        }, 1000);
+        
+        // Start animation
+        animateAgents();
+    </script>
+</body>
+</html>

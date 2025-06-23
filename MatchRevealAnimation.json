@@ -1,0 +1,25 @@
+{
+    "title": "MatchRevealAnimation",
+    "steps": [
+        {
+            "type": "setViewport",
+            "width": 1146,
+            "height": 748,
+            "deviceScaleFactor": 1,
+            "isMobile": false,
+            "hasTouch": false,
+            "isLandscape": false
+        },
+        {
+            "type": "navigate",
+            "url": "file:///Users/a.berton/Documents/perso/Hackathon_AI/matchRevealAnimation.html",
+            "assertedEvents": [
+                {
+                    "type": "navigation",
+                    "url": "file:///Users/a.berton/Documents/perso/Hackathon_AI/matchRevealAnimation.html",
+                    "title": "Match Reveal Animation"
+                }
+            ]
+        }
+    ]
+}

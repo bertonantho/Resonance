@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Recording Animation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a0f1f 100%);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 400px;
+            height: 700px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        .title {
+            font-size: 48px;
+            font-weight: 200;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #888;
+            font-size: 16px;
+        }
+        
+        .voice-visualizer {
+            position: relative;
+            height: 200px;
+            margin: 40px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            animation: fadeIn 1s ease-out 0.5s forwards;
+        }
+        
+        .voice-circle {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, rgba(102, 126, 234, 0.1), transparent);
+            animation: pulse 3s infinite;
+        }
+        
+        .voice-circle:nth-child(2) {
+            animation-delay: 0.5s;
+            width: 200px;
+            height: 200px;
+        }
+        
+        .voice-circle:nth-child(3) {
+            animation-delay: 1s;
+            width: 250px;
+            height: 250px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(1.2);
+                opacity: 0;
+            }
+        }
+        
+        .mic-icon {
+            position: relative;
+            z-index: 10;
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            animation: breathe 2s infinite;
+        }
+        
+        @keyframes breathe {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+        
+        .mic-icon svg {
+            width: 40px;
+            height: 40px;
+            fill: white;
+        }
+        
+        .waveform {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            margin: 40px 0;
+            height: 60px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 1.5s forwards;
+        }
+        
+        .wave-bar {
+            width: 3px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 3px;
+            animation: wave 1s ease-in-out infinite;
+        }
+        
+        .wave-bar:nth-child(1) { animation-delay: 0s; height: 20px; }
+        .wave-bar:nth-child(2) { animation-delay: 0.1s; height: 35px; }
+        .wave-bar:nth-child(3) { animation-delay: 0.2s; height: 25px; }
+        .wave-bar:nth-child(4) { animation-delay: 0.3s; height: 40px; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; height: 30px; }
+        .wave-bar:nth-child(6) { animation-delay: 0.5s; height: 45px; }
+        .wave-bar:nth-child(7) { animation-delay: 0.6s; height: 35px; }
+        .wave-bar:nth-child(8) { animation-delay: 0.7s; height: 50px; }
+        .wave-bar:nth-child(9) { animation-delay: 0.8s; height: 40px; }
+        .wave-bar:nth-child(10) { animation-delay: 0.9s; height: 35px; }
+        .wave-bar:nth-child(11) { animation-delay: 1s; height: 25px; }
+        .wave-bar:nth-child(12) { animation-delay: 1.1s; height: 30px; }
+        
+        @keyframes wave {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(1.8);
+            }
+        }
+        
+        .prompt {
+            text-align: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 2s forwards;
+        }
+        
+        .prompt-text {
+            font-size: 18px;
+            line-height: 1.5;
+            color: #e0e0e0;
+        }
+        
+        .timer {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 100;
+            color: #667eea;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 2.5s forwards;
+        }
+        
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            animation: fadeIn 0.5s ease-out 2s forwards;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: blink 2s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.3;
+            }
+        }
+        
+        .status-text {
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status">
+            <div class="status-dot"></div>
+            <span class="status-text">Recording</span>
+        </div>
+        
+        <div class="header">
+            <div class="title">Resonance</div>
+            <div class="subtitle">Let's capture your essence</div>
+        </div>
+        
+        <div class="voice-visualizer">
+            <div class="voice-circle"></div>
+            <div class="voice-circle"></div>
+            <div class="voice-circle"></div>
+            <div class="mic-icon">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+                    <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+                </svg>
+            </div>
+        </div>
+        
+        <div class="waveform">
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+            <div class="wave-bar"></div>
+        </div>
+        
+        <div class="prompt">
+            <p class="prompt-text">Tell me about your perfect weekend...</p>
+        </div>
+        
+        <div class="timer">0:42</div>
+    </div>
+
+    <script>
+        // Animate timer
+        let seconds = 42;
+        setInterval(() => {
+            seconds++;
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            document.querySelector('.timer').textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        }, 1000);
+
+        // Cycle through prompts
+        const prompts = [
+            "Tell me about your perfect weekend...",
+            "What brings you unexpected joy?",
+            "Describe a moment you felt understood..."
+        ];
+        let promptIndex = 0;
+        setInterval(() => {
+            promptIndex = (promptIndex + 1) % prompts.length;
+            document.querySelector('.prompt-text').textContent = prompts[promptIndex];
+        }, 5000);
+    </script>
+</body>
+</html>
